@@ -4,9 +4,6 @@
 
 * [1. Descripción](#1-preámbulo)
 * [2. Funcionamiento básico](#2-funcionamiento-básico)
-* [3. Valores máximos y mínimos generales](#3-máximos-y-mínimos)
-* [4. Porcentaje de muertes](#4-porcentaje-de-muertes)
-* [5. Estado más afectado](#5-estado-más-afectado)
 
 
 ***

@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 };
 exports.__esModule = true;
 exports.getPercentage = exports.getGeneralMinMax = exports.getDataByState = exports.processCSV = exports.readFile = exports.extensionValidate = exports.existenceValidate = void 0;
-var fs = require('fs'); // importo modulo fs
+var fs = require('fs');
 var path = require('path');
 var existenceValidate = function (route) { return fs.existsSync(route) ? true : false; };
 exports.existenceValidate = existenceValidate;
@@ -22,12 +22,12 @@ var readFile = function (route) { return fs.readFileSync(route).toString(); };
 exports.readFile = readFile;
 var processCSV = function (fileContent, withoutHeader) {
     if (withoutHeader === void 0) { withoutHeader = false; }
-    return fileContent.slice(withoutHeader ? fileContent.indexOf('\n') + 1 : 0) /// ajusta encabezado
-        .split('\n') /// selecc por salto de linea
+    return fileContent.slice(withoutHeader ? fileContent.indexOf('\n') + 1 : 0) // convierte en array de arrays
+        .split('\n')
         .map(function (rowCity) { return rowCity.split(","); });
-}; // separa por ,
+};
 exports.processCSV = processCSV;
-var cleanData = function (value) { return Number(value.match(/([0-9])+/g)); }; /// tomar solo números
+var cleanData = function (value) { return Number(value.match(/([0-9])+/g)); };
 var selectTotalPopulation = function (row) { return row.findIndex(function (i) { return i === ' US"'; }) == -1 ? 13 : row.findIndex(function (i) { return i === ' US"'; }) + 1; };
 var getDataByState = function (arrayCities, getTotalPopulation) {
     if (getTotalPopulation === void 0) { getTotalPopulation = false; }
@@ -59,7 +59,8 @@ var getGeneralMinMax = function (obj, percentaje) {
             stateMin = stateUS;
         }
     }
-    return { maxStateName: stateMax,
+    return {
+        maxStateName: stateMax,
         maxStateValue: max,
         minStateName: stateMin,
         minStateValue: min

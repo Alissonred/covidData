@@ -1,14 +1,14 @@
-const fs = require('fs');// importo modulo fs
+const fs = require('fs');
 const path = require('path');
 
-export const existenceValidate= (route: string) => fs.existsSync(route)?true : false
+export const existenceValidate = (route: string) => fs.existsSync(route) ? true : false
 export const extensionValidate = (route: string) => path.extname(route) === '.csv' ? true : false
 export const readFile = (route: string) => fs.readFileSync(route).toString()
-export const processCSV = (fileContent: string, withoutHeader: boolean = false) => fileContent.slice(withoutHeader ? fileContent.indexOf('\n') + 1 : 0) /// ajusta encabezado
-    .split('\n')/// selecc por salto de linea
-    .map(rowCity => rowCity.split(","));// separa por ,
+export const processCSV = (fileContent: string, withoutHeader: boolean = false) => fileContent.slice(withoutHeader ? fileContent.indexOf('\n') + 1 : 0) // convierte en array de arrays
+    .split('\n')
+    .map(rowCity => rowCity.split(","));
 
-const cleanData = (value: string) => Number(value.match(/([0-9])+/g)) /// tomar solo números
+const cleanData = (value: string) => Number(value.match(/([0-9])+/g)) 
 const selectTotalPopulation = (row: Array<string>) => row.findIndex(i => i === ' US"') == -1 ? 13 : row.findIndex(i => i === ' US"') + 1
 export const getDataByState = (arrayCities: Array<Array<string>>, getTotalPopulation: boolean = false) => { // obtiene el numero de muertos por estado
     return arrayCities.reduce((acumulator: any, row: Array<string>) => {
@@ -21,10 +21,10 @@ export const getDataByState = (arrayCities: Array<Array<string>>, getTotalPopula
     }, {});
 }
 
-const cleanPercentage= (percentage: string) => Number(percentage.slice(0,-1))
+const cleanPercentage = (percentage: string) => Number(percentage.slice(0, -1))
 
 
-export const getGeneralMinMax = (obj: any, percentaje: boolean =false) => {
+export const getGeneralMinMax = (obj: any, percentaje: boolean = false) => {
     let max: number = 0;
     let stateMax: string = "";
     let min: number = 0;
@@ -35,22 +35,23 @@ export const getGeneralMinMax = (obj: any, percentaje: boolean =false) => {
             max = percentaje == true ? cleanPercentage(obj[stateUS]) : obj[stateUS];
             stateMax = stateUS;
         }
-        if (percentaje == true ? min >= cleanPercentage(obj[stateUS]) :min >= obj[stateUS]) {
+        if (percentaje == true ? min >= cleanPercentage(obj[stateUS]) : min >= obj[stateUS]) {
             min = percentaje == true ? cleanPercentage(obj[stateUS]) : obj[stateUS];
             stateMin = stateUS;
         }
-       
+
     }
-    return { maxStateName : stateMax,
-      maxStateValue: max,
-      minStateName : stateMin,
-      minStateValue: min
+    return {
+        maxStateName: stateMax,
+        maxStateValue: max,
+        minStateName: stateMin,
+        minStateValue: min
     }
 }
 
 export const getPercentage = (totalByState: any, deathByState: any) => {
     return Object.keys({ ...totalByState }).reduce((acum: any, item) => {
-        acum[item] = { ...totalByState }[item]== 0? '0.00%':({ ...deathByState }[item] / { ...totalByState }[item] * 100).toFixed(2) + "%"////
+        acum[item] = { ...totalByState }[item] == 0 ? '0.00%' : ({ ...deathByState }[item] / { ...totalByState }[item] * 100).toFixed(2) + "%"////
         return acum
     }, {});
 }

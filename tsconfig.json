@@ -102,7 +102,7 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "files":[
-    "index.ts",
-    "functions.ts"
+    "functions.ts",
+    "script.ts"
   ]
 }

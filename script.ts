@@ -1,0 +1,1 @@
+import{extValidate, readFile, processCSV, getData, getStadistics, getPercentage } from './functions'

@@ -1,59 +1,67 @@
 const fs = require('fs');// importo modulo fs
 const path = require('path');
-const rutaPrueba = 'time_series_covid19_deaths_US.csv';
-//const rutaPrueba = 'falso.csv';
-export const extValidate = (ruta: string) => path.extname(ruta) === '.csv' ? true : false
-export const readFile = (ruta: string) => fs.readFileSync(ruta).toString()
-export const processCSV = (texto: string, sinEncabezado: boolean = false) => texto.slice(sinEncabezado ? texto.indexOf('\n') + 1 : 0) /// ajusta encabezado
+
+export const existenceValidate= (route: string) => fs.existsSync(route)?true : false
+export const extensionValidate = (route: string) => path.extname(route) === '.csv' ? true : false
+export const readFile = (route: string) => fs.readFileSync(route).toString()
+export const processCSV = (fileContent: string, withoutHeader: boolean = false) => fileContent.slice(withoutHeader ? fileContent.indexOf('\n') + 1 : 0) /// ajusta encabezado
     .split('\n')/// selecc por salto de linea
-    .map(l => l.split(","));// separa por ,
+    .map(rowCity => rowCity.split(","));// separa por ,
 
 const cleanData = (value: string) => Number(value.match(/([0-9])+/g)) /// tomar solo números
-const selectTotales = (row: Array<string>) => row.findIndex(i => i === ' US"') == -1 ? 13 : row.findIndex(i => i === ' US"') + 1
-export const getData = (arrayCities: Array<Array<string>>, getTotalPoblación: boolean = false) => {
-    return arrayCities.reduce((acum: any, row: Array<string>) => {
-        if (!acum[row[6]]) {
-            acum[row[6]] = cleanData(row[getTotalPoblación ? selectTotales(row) : row.length - 1]);//////////////////////////
+const selectTotalPopulation = (row: Array<string>) => row.findIndex(i => i === ' US"') == -1 ? 13 : row.findIndex(i => i === ' US"') + 1
+export const getDataByState = (arrayCities: Array<Array<string>>, getTotalPopulation: boolean = false) => { // obtiene el numero de muertos por estado
+    return arrayCities.reduce((acumulator: any, row: Array<string>) => {
+        if (!acumulator[row[6]]) {
+            acumulator[row[6]] = cleanData(row[getTotalPopulation ? selectTotalPopulation(row) : row.length - 1]);
         } else {
-            acum[row[6]] = acum[row[6]] + cleanData(row[getTotalPoblación ? selectTotales(row) : row.length - 1]);////////////
+            acumulator[row[6]] = acumulator[row[6]] + cleanData(row[getTotalPopulation ? selectTotalPopulation(row) : row.length - 1]);
         }
-        return acum
+        return acumulator
     }, {});
 }
 
-export const getStadistics = (obj: any) => {
+const cleanPercentage= (percentage: string) => Number(percentage.slice(0,-1))
+
+
+export const getGeneralMinMax = (obj: any, percentaje: boolean =false) => {
     let max: number = 0;
-    let estadoMax: string = "";
+    let stateMax: string = "";
     let min: number = 0;
-    let estadoMin: string = "";
+    let stateMin: string = "";
 
     for (let stateUS in obj) {
-        if (max < obj[stateUS]) {
-            max = obj[stateUS];
-            estadoMax = stateUS;
+        if (percentaje == true ? max < cleanPercentage(obj[stateUS]) : max < obj[stateUS]) {
+            max = percentaje == true ? cleanPercentage(obj[stateUS]) : obj[stateUS];
+            stateMax = stateUS;
         }
-        if (min >= obj[stateUS]) {
-            min = obj[stateUS];
-            estadoMin = stateUS;
+        if (percentaje == true ? min >= cleanPercentage(obj[stateUS]) :min >= obj[stateUS]) {
+            min = percentaje == true ? cleanPercentage(obj[stateUS]) : obj[stateUS];
+            stateMin = stateUS;
         }
+       
     }
-    return [estadoMax, max, estadoMin, min];
+    return { maxStateName : stateMax,
+      maxStateValue: max,
+      minStateName : stateMin,
+      minStateValue: min
+    }
 }
 
-export const getPercentage = (totales: any, desesos: any) => {
-    return Object.keys({ ...totales }).reduce((acum: any, item) => {
-        acum[item] = ({ ...desesos }[item] / { ...totales }[item] * 100).toFixed(2) + "%"
-        //console.log(acum, 'es acum');
+export const getPercentage = (totalByState: any, deathByState: any) => {
+    return Object.keys({ ...totalByState }).reduce((acum: any, item) => {
+        acum[item] = { ...totalByState }[item]== 0? '0.00%':({ ...deathByState }[item] / { ...totalByState }[item] * 100).toFixed(2) + "%"////
         return acum
     }, {});
 }
 
 
-try {
-    console.log(getStadistics(getData(processCSV(readFile(rutaPrueba), true))), 'maximos y min');
-    console.log(getData(processCSV(readFile(rutaPrueba), true), true), 'poblacion total');
-    console.log(getPercentage(getData(processCSV(readFile(rutaPrueba), true), true), getData(processCSV(readFile(rutaPrueba), true))));
+/* try {
+    const rutaPrueba = 'time_series_covid19_deaths_US.csv';
+    console.log(getGeneralMinMax(getDataByState(processCSV(readFile(rutaPrueba), true))), 'maximos y min');
+    console.log(getDataByState(processCSV(readFile(rutaPrueba), true), true), 'poblacion total');
+    console.log(getPercentage(getDataByState(processCSV(readFile(rutaPrueba), true), true), getDataByState(processCSV(readFile(rutaPrueba), true))));
 } catch (e) {
     console.log(e, "es el error");
 }
-
+ */
